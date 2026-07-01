@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FJCU Campus Sustainability Hub</title>
+  <meta name="description" content="An interactive portal for Fu Jen Catholic University campus sustainability initiatives, smart drainage monitoring, and matching tools.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            fjcu: {
+              blue: '#003366',
+              gold: '#C5A059',
+            },
+            darkbg: '#080C14',
+          },
+          boxShadow: {
+            'glow-blue': '0 0 20px rgba(59, 130, 246, 0.4)',
+            'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.4)',
+            'glow-amber': '0 0 20px rgba(245, 158, 11, 0.4)',
+            'glow-red': '0 0 20px rgba(239, 68, 68, 0.4)',
+            'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Premium animations and scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080C14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3b82f6;
+    }
+
+    body {
+      background-color: #080C14;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+    }
+
+    /* Glassmorphism custom classes */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glass-modal {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Wave effect inside monitoring gauge */
+    .wave-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(180deg, rgba(59, 130, 246, 0.6) 0%, rgba(29, 78, 216, 0.8) 100%);
+      border-radius: 38%;
+      transition: top 0.4s ease, transform 10s linear;
+      transform-origin: 50% 48%;
+      animation: rotate-wave 12s infinite linear;
+    }
+
+    .wave-back {
+      background: linear-gradient(180deg, rgba(96, 165, 250, 0.4) 0%, rgba(30, 64, 175, 0.6) 100%);
+      border-radius: 35%;
+      animation: rotate-wave 8s infinite linear reverse;
+      opacity: 0.7;
+    }
+
+    @keyframes rotate-wave {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Rain particle simulation style */
+    .rain-drop {
+      position: absolute;
+      background: linear-gradient(transparent, #60a5fa);
+      width: 1.5px;
+      height: 15px;
+      opacity: 0.7;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(350px);
+      }
+    }
+
+    /* Glowing LED Indicator */
+    .led-glow {
+      box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    }
+
+    /* Typing indicator styling */
+    .typing-dot {
+      animation: typing-bounce 1.4s infinite both;
+    }
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+
+    @keyframes typing-bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Custom select element dropdown arrows */
+    select {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.25em auto;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+  </style>
+</head>
+<body class="text-slate-100 flex flex-col min-h-screen relative">
+
+  <!-- TOP HEADER -->
+  <header class="glass-card sticky top-0 z-40 px-6 py-4 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white shadow-glow-blue">
+          <i class="fa-solid fa-leaf text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            FJCU Campus Sustainability Hub
+          </h1>
+          <p class="text-xs text-slate-400">管理學院 College of Management &bull; Campus Innovation Project</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-sm">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 led-glow text-emerald-500"></span>
+          <span class="text-xs font-semibold text-emerald-400">FJCU Sustainability Hub Active</span>
+        </div>
+        <div class="text-xs text-slate-400 font-mono hidden md:block" id="current-time">
+          SYSTEM TIME: 2026-06-30 16:00:58
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-24">
+
+    <!-- LEFT COLUMN: DRAINAGE MONITORING GAUGE (FEATURE 1) & ESG DASHBOARD -->
+    <section class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- Feature 1 Card -->
+      <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between h-full">
+        <!-- Background Grid Effect -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+
+        <div>
+          <!-- Title -->
+          <div class="flex items-center justify-between mb-6 relative z-10">
+            <div>
+              <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider">Feature 1</span>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-droplet text-blue-500"></i> Smart Drainage Gauge
+              </h2>
+            </div>
+            <div id="status-badge" class="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Optimal
+            </div>
+          </div>
+
+          <!-- Rain Simulation Frame -->
+          <div class="relative flex flex-col items-center justify-center py-6 bg-slate-950/40 rounded-2xl border border-slate-900/60" id="rain-canvas-parent">
+            <!-- Simulated Rain Container -->
+            <div id="rain-container" class="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl"></div>
+
+            <!-- Gauge Container -->
+            <div class="w-48 h-48 rounded-full border-4 border-slate-800 p-2 relative flex items-center justify-center bg-slate-900/50 shadow-inner">
+              <div class="wave-container">
+                <div id="gauge-wave-back" class="wave wave-back" style="top: 85%;"></div>
+                <div id="gauge-wave" class="wave" style="top: 85%;"></div>
+              </div>
+              
+              <!-- Value Overlay -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none z-10">
+                <span class="text-xs text-slate-300 font-medium uppercase tracking-wider">Water Level</span>
+                <span id="water-level-display" class="text-3xl font-extrabold tracking-tight text-white drop-shadow">15%</span>
+                <span id="risk-display" class="text-[10px] font-semibold px-2 py-0.5 mt-1 rounded-full bg-emerald-500/20 text-emerald-300">
+                  LOW RISK
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-2 gap-4 mt-6 relative z-10">
+          <div class="bg-slate-950/40 p-4 rounded-xl border border-slate-900/60">
+            <span class="text-xs text-slate-400 block mb-1">Flow Rate</span>
+            <div class="flex items-baseline gap-1">
+              <span id="flow-rate" class="text-lg font-bold font-mono">1.2</span>
+              <span class="text-xs text-slate-500">L/s</span>
+            </div>
+          </div>
+          <div class="bg-slate-950/40 p-4 rounded-xl border border-slate-900/60">
+            <span class="text-xs text-slate-400 block mb-1">Smart Gate Status</span>
+            <div class="flex items-center gap-2">
+              <span id="gate-led" class="h-2.5 w-2.5 rounded-full bg-slate-500 text-slate-500"></span>
+              <span id="gate-status" class="text-sm font-bold font-mono uppercase">CLOSED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ESG ANALYTICS DASHBOARD CARD -->
+        <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 mt-4 relative z-10">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="fa-solid fa-chart-line text-emerald-400"></i> ESG & Carbon Credit Analytics
+            </h3>
+            <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+              KPI Target
+            </span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-[11px] text-left">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-500">
+                  <th class="pb-1 font-medium">Metric KPI</th>
+                  <th class="pb-1 text-center font-medium">Target</th>
+                  <th class="pb-1 text-right font-medium">Current</th>
+                  <th class="pb-1 text-right font-medium">Variance</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-900 text-slate-300">
+                <tr>
+                  <td class="py-1.5 font-medium">Building Energy</td>
+                  <td class="py-1.5 text-center font-mono">&lt; 80 kWh/m²</td>
+                  <td class="py-1.5 text-right font-mono">92 kWh/m²</td>
+                  <td class="py-1.5 text-right text-amber-400 font-mono font-medium">+15%</td>
+                </tr>
+                <tr>
+                  <td class="py-1.5 font-medium">Carbon Offset</td>
+                  <td class="py-1.5 text-center font-mono">&gt; 40 tCO2e</td>
+                  <td class="py-1.5 text-right font-mono">42.5 tCO2e</td>
+                  <td class="py-1.5 text-right text-emerald-400 font-mono font-medium">Compliant</td>
+                </tr>
+                <tr>
+                  <td class="py-1.5 font-medium">Water Recycled</td>
+                  <td class="py-1.5 text-center font-mono">&gt; 30%</td>
+                  <td class="py-1.5 text-right font-mono">18.2%</td>
+                  <td class="py-1.5 text-right text-blue-400 font-mono font-medium">Under Target</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Control Action -->
+        <div class="mt-4 relative z-10">
+          <button id="simulate-btn" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold transition-all duration-300 shadow-glow-blue flex items-center justify-center gap-2 group active:scale-[0.98]">
+            <i class="fa-solid fa-cloud-showers-heavy group-hover:animate-bounce"></i>
+            <span id="btn-text">Simulate Heavy Rain</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: QUIZ MATCHER (FEATURE 2) - dropdown-based -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+      <div class="glass-card rounded-2xl p-6 flex flex-col justify-between h-full relative">
+        
+        <div>
+          <!-- Title -->
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Feature 2</span>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-emerald-500"></i> Sustainability Initiative Matcher
+              </h2>
+            </div>
+            <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-md border border-slate-800">
+              3 Questions
+            </span>
+          </div>
+
+          <!-- Description -->
+          <p class="text-sm text-slate-300 mb-6 leading-relaxed">
+            Please fill out the bulletproof form selection below to discover which FJCU campus infrastructure sustainability project matches your goals, and view strategic recommendations.
+          </p>
+
+          <!-- QUIZ CONTAINER (Dropdown selections) -->
+          <div class="space-y-6">
+            
+            <!-- Question 1 -->
+            <div class="space-y-3" id="q1-box">
+              <label for="q1-select" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs">1</span>
+                What campus issue bothers you most?
+              </label>
+              <select id="q1-select" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-300 focus:border-blue-500 focus:shadow-[0_0_15px_rgba(59,130,246,0.25)] outline-none transition-all duration-300 backdrop-blur-md">
+                <option value="" disabled selected>-- Select most critical issue --</option>
+                <option value="A">[A] Flooding and poor drainage after heavy rain</option>
+                <option value="B">[B] Excessive energy/electricity waste in buildings</option>
+                <option value="C">[C] Lack of green spaces and biodiversity</option>
+              </select>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="space-y-3" id="q2-box">
+              <label for="q2-select" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs">2</span>
+                Which UN SDG aligns most with your personal values?
+              </label>
+              <select id="q2-select" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-300 focus:border-emerald-500 focus:shadow-[0_0_15px_rgba(16,185,129,0.25)] outline-none transition-all duration-300 backdrop-blur-md">
+                <option value="" disabled selected>-- Select aligning UN SDG --</option>
+                <option value="A">[A] SDG 6: Clean Water and Sanitation</option>
+                <option value="B">[B] SDG 7: Affordable and Clean Energy</option>
+                <option value="C">[C] SDG 11: Sustainable Cities and Communities</option>
+                <option value="D">[D] SDG 15: Life on Land</option>
+              </select>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="space-y-3" id="q3-box">
+              <label for="q3-select" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs">3</span>
+                What is your primary role on campus?
+              </label>
+              <select id="q3-select" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-300 focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.25)] outline-none transition-all duration-300 backdrop-blur-md">
+                <option value="" disabled selected>-- Select your primary campus role --</option>
+                <option value="A">[A] Student (Action-oriented campus campaigns)</option>
+                <option value="B">[B] Faculty / Researcher (Data & Policy integration)</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ACTION BUTTON -->
+        <div class="mt-8 border-t border-slate-800/60 pt-6">
+          <button id="match-btn" disabled class="w-full py-4 px-6 rounded-xl bg-slate-800/40 border border-slate-700/60 text-slate-500 font-bold transition-all duration-300 cursor-not-allowed flex items-center justify-center gap-2 group active:scale-[0.98]">
+            <i class="fa-solid fa-magnifying-glass-chart"></i>
+            <span>Find My Project</span>
+          </button>
+          <p id="match-error" class="text-xs text-slate-500 mt-2.5 text-center">
+            * Please answer all 3 questions to unlock the matching tool.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto py-6 border-t border-slate-900 bg-slate-950/50">
+    <div class="max-w-7xl mx-auto px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p>&copy; 2026 Fu Jen Catholic University Campus Sustainability Division. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-blue-400 transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-blue-400 transition-colors">IoT Dashboard API</a>
+        <a href="#" class="hover:text-blue-400 transition-colors">Contact Admin</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- RESULT DIALOG / GLASSMORPHIC MODAL -->
+  <div id="result-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    
+    <!-- Modal Inner Card -->
+    <div class="glass-modal max-w-lg w-full rounded-2xl shadow-2xl p-6 md:p-8 scale-95 opacity-0 transform transition-all duration-300 flex flex-col justify-between" id="result-card">
+      
+      <!-- Top Graphic / Icon -->
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-glow-emerald">
+            <i class="fa-solid fa-circle-check text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Matched Initiative</h3>
+            <h4 class="text-lg font-bold text-white leading-tight">Your Sustainability Focus</h4>
+          </div>
+        </div>
+        <button id="close-modal-btn" class="w-8 h-8 rounded-lg hover:bg-slate-800/80 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Result Content -->
+      <div class="space-y-3">
+        <!-- Project Basic Info -->
+        <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-900">
+          <h5 id="result-project-title" class="text-sm font-bold text-white mb-2 text-emerald-300 font-sans">
+            Project Title Placeholder
+          </h5>
+          <p id="result-project-desc" class="text-xs text-slate-300 leading-relaxed font-sans">
+            Project description goes here.
+          </p>
+        </div>
+
+        <!-- Dedicated Strategic Campus Insights Panel (Typewriter target) -->
+        <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-900">
+          <h5 class="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider mb-2">
+            <i class="fa-solid fa-lightbulb"></i> Strategic Campus Insights (校園策略洞察)
+          </h5>
+          <div id="result-insights-text" class="text-xs text-slate-300 leading-relaxed font-sans min-h-[90px] border-l-2 border-emerald-500/40 pl-3">
+            <!-- Dynamic typewriter text will load here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer (Tailored CTA based on Q3) -->
+      <div class="mt-6 border-t border-slate-800/80 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex flex-col text-left">
+          <span class="text-[10px] text-slate-500 uppercase tracking-wider">Next Step Action</span>
+          <span id="result-cta-text" class="text-sm font-bold text-amber-400">
+            Tailored Action Call
+          </span>
+        </div>
+        <button id="result-action-btn" class="w-full sm:w-auto py-2.5 px-5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-sm transition-all duration-300 shadow-glow-emerald flex items-center justify-center gap-2 active:scale-95">
+          <span>Take Action</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FLOATING AI CHATBOT WIDGET -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    
+    <!-- Chat Window Container -->
+    <div id="chat-window" class="w-80 sm:w-96 h-[480px] glass-modal rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 translate-y-10 opacity-0 pointer-events-none transition-all duration-300">
+      
+      <!-- Chat Window Header -->
+      <div class="bg-gradient-to-r from-emerald-800/80 to-teal-900/80 px-4 py-3 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="relative">
+            <div class="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-emerald-400 border border-emerald-500/30">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 led-glow border-2 border-slate-900"></span>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-white tracking-wide">FJCU Sustainability AI Advisor</h4>
+            <span class="text-[9px] text-emerald-300 font-light">Powered by Gemini 2.5</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="chat-settings-btn" class="w-7 h-7 rounded hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all" title="Gemini API Key Settings">
+            <i class="fa-solid fa-key text-xs"></i>
+          </button>
+          <button id="close-chat-btn" class="w-7 h-7 rounded hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+            <i class="fa-solid fa-minus text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings Panel (Toggleable inside chat) -->
+      <div id="chat-settings-panel" class="hidden bg-slate-950/90 border-b border-slate-800 p-3 text-xs space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-slate-300">Gemini API Key Setting</span>
+          <button id="close-settings-btn" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex gap-2">
+          <input type="password" id="gemini-key-input" placeholder="Enter GEMINI_API_KEY..." class="flex-grow bg-slate-900 border border-slate-800 rounded px-2 py-1 text-slate-200 outline-none focus:border-emerald-500">
+          <button id="save-key-btn" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-semibold transition-all">Save</button>
+        </div>
+        <p class="text-[9px] text-slate-500">Your key will be securely saved in your local browser storage.</p>
+      </div>
+
+      <!-- Chat Messages Body -->
+      <div id="chat-body" class="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-950/20 text-xs scrollbar">
+        
+        <!-- Welcome Message -->
+        <div class="flex items-start gap-2 max-w-[85%]">
+          <div class="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[10px] border border-emerald-500/20">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl rounded-tl-none p-3 text-slate-300 leading-relaxed">
+            Hello! I am your FJCU Sustainability AI Advisor. Ask me anything about FJCU's green infrastructure, building energy waste, carbon footprint standards, or smart drainage network!
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Chat Input Footer -->
+      <form id="chat-form" class="p-3 border-t border-slate-800/60 bg-slate-950/50 flex gap-2">
+        <input type="text" id="chat-input" placeholder="Ask about campus sustainability..." autocomplete="off" class="flex-grow bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-emerald-500 transition-all">
+        <button type="submit" class="w-9 h-9 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl flex items-center justify-center transition-all shadow-glow-emerald">
+          <i class="fa-solid fa-paper-plane text-xs"></i>
+        </button>
+      </form>
+
+    </div>
+
+    <!-- Toggle Button -->
+    <button id="toggle-chat-btn" class="w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-full flex items-center justify-center shadow-glow-emerald transition-all duration-300 hover:scale-110 active:scale-95">
+      <i class="fa-solid fa-comment-dots text-xl"></i>
+    </button>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // Safe execution block wrapper
+    (function() {
+      // Global State
+      let isRaining = false;
+      let waterLevel = 15; // Starting percent
+      let rainInterval = null;
+      let drainInterval = null;
+      
+      const quizState = {
+        q1: null,
+        q2: null,
+        q3: null
+      };
+
+      // Helper: Escape HTML
+      function escapeHtml(text) {
+        if (!text) return '';
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // 1. CLOCK COMPONENT
+      try {
+        const currentTimeEl = document.getElementById('current-time');
+        if (currentTimeEl) {
+          setInterval(() => {
+            const now = new Date();
+            const formatNum = (n) => String(n).padStart(2, '0');
+            currentTimeEl.textContent = `SYSTEM TIME: ${now.getFullYear()}-${formatNum(now.getMonth() + 1)}-${formatNum(now.getDate())} ${formatNum(now.getHours())}:${formatNum(now.getMinutes())}:${formatNum(now.getSeconds())}`;
+          }, 1000);
+        }
+      } catch (err) {
+        console.error("Clock Component Error:", err);
+      }
+
+      // 2. INTERACTIVE RAIN SIMULATOR GAUGE
+      try {
+        const simulateBtn = document.getElementById('simulate-btn');
+        const btnText = document.getElementById('btn-text');
+        const waterLevelDisplay = document.getElementById('water-level-display');
+        const riskDisplay = document.getElementById('risk-display');
+        const flowRateDisplay = document.getElementById('flow-rate');
+        const statusBadge = document.getElementById('status-badge');
+        const gateStatus = document.getElementById('gate-status');
+        const gateLed = document.getElementById('gate-led');
+        const rainContainer = document.getElementById('rain-container');
+        const gaugeWave = document.getElementById('gauge-wave');
+        const gaugeWaveBack = document.getElementById('gauge-wave-back');
+
+        function createRainDrops() {
+          if (!isRaining) return;
+          const parent = document.getElementById('rain-canvas-parent');
+          if (!parent) return;
+          const width = parent.clientWidth;
+          for (let i = 0; i < 8; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-drop');
+            drop.style.left = Math.random() * width + 'px';
+            drop.style.top = '-20px';
+            const duration = Math.random() * 0.4 + 0.3;
+            drop.style.animationDuration = duration + 's';
+            rainContainer.appendChild(drop);
+
+            setTimeout(() => {
+              drop.remove();
+            }, duration * 1000);
+          }
+        }
+
+        let rainSoundInterval = null;
+        function startRain() {
+          isRaining = true;
+          btnText.textContent = "Stop Simulation";
+          simulateBtn.classList.remove('from-blue-600', 'to-blue-500', 'shadow-glow-blue');
+          simulateBtn.classList.add('from-red-600', 'to-red-500', 'shadow-glow-red');
+          
+          clearInterval(drainInterval);
+          rainSoundInterval = setInterval(createRainDrops, 60);
+
+          rainInterval = setInterval(() => {
+            if (waterLevel < 100) {
+              waterLevel += 1;
+              updateGaugeUI();
+            }
+          }, 150);
+        }
+
+        function stopRain() {
+          isRaining = false;
+          btnText.textContent = "Simulate Heavy Rain";
+          simulateBtn.classList.remove('from-red-600', 'to-red-500', 'shadow-glow-red');
+          simulateBtn.classList.add('from-blue-600', 'to-blue-500', 'shadow-glow-blue');
+
+          clearInterval(rainInterval);
+          clearInterval(rainSoundInterval);
+          rainContainer.innerHTML = '';
+
+          drainInterval = setInterval(() => {
+            if (waterLevel > 15) {
+              waterLevel -= 0.8;
+              if (waterLevel < 15) waterLevel = 15;
+              updateGaugeUI();
+            } else {
+              clearInterval(drainInterval);
+            }
+          }, 150);
+        }
+
+        function updateGaugeUI() {
+          const level = Math.round(waterLevel);
+          waterLevelDisplay.textContent = `${level}%`;
+
+          const waveTop = 100 - level;
+          gaugeWave.style.top = `${waveTop}%`;
+          gaugeWaveBack.style.top = `${waveTop}%`;
+
+          if (isRaining) {
+            flowRateDisplay.textContent = (1.2 + (level * 0.15)).toFixed(1);
+          } else {
+            flowRateDisplay.textContent = Math.max(1.2, ((level - 15) * 0.05)).toFixed(1);
+          }
+
+          if (level >= 70) {
+            gateStatus.textContent = "OPEN";
+            gateStatus.className = "text-sm font-bold font-mono text-emerald-400";
+            gateLed.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 led-glow text-emerald-500";
+            if (isRaining) {
+              waterLevel -= 0.4;
+            }
+          } else {
+            gateStatus.textContent = "CLOSED";
+            gateStatus.className = "text-sm font-bold font-mono text-slate-500";
+            gateLed.className = "h-2.5 w-2.5 rounded-full bg-slate-600 text-slate-600";
+          }
+
+          if (level < 40) {
+            statusBadge.textContent = "Optimal";
+            statusBadge.className = "px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            riskDisplay.textContent = "LOW RISK";
+            riskDisplay.className = "text-[10px] font-semibold px-2 py-0.5 mt-1 rounded-full bg-emerald-500/20 text-emerald-300";
+          } else if (level < 70) {
+            statusBadge.textContent = "Warning";
+            statusBadge.className = "px-2.5 py-1 rounded-md text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+            riskDisplay.textContent = "MODERATE RISK";
+            riskDisplay.className = "text-[10px] font-semibold px-2 py-0.5 mt-1 rounded-full bg-amber-500/20 text-amber-300";
+          } else if (level < 90) {
+            statusBadge.textContent = "Action Required";
+            statusBadge.className = "px-2.5 py-1 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20 led-glow";
+            riskDisplay.textContent = "HIGH RISK - GATES OPENING";
+            riskDisplay.className = "text-[10px] font-semibold px-2 py-0.5 mt-1 rounded-full bg-red-500/20 text-red-300 animate-pulse";
+          } else {
+            statusBadge.textContent = "Critical Alert";
+            statusBadge.className = "px-2.5 py-1 rounded-md text-xs font-medium bg-red-600 text-white border border-red-500 led-glow animate-pulse";
+            riskDisplay.textContent = "CRITICAL FLOOD DANGER";
+            riskDisplay.className = "text-[10px] font-semibold px-2 py-0.5 mt-1 rounded-full bg-red-600 text-white animate-bounce";
+          }
+        }
+
+        if (simulateBtn) {
+          simulateBtn.addEventListener('click', () => {
+            if (isRaining) stopRain(); else startRain();
+          });
+        }
+        updateGaugeUI();
+      } catch (err) {
+        console.error("Gauge Component Error:", err);
+      }
+
+      // 3. SUSTAINABILITY INITIATIVE MATCHER (FEATURE 2) - dropdown change listeners
+      try {
+        const q1Select = document.getElementById('q1-select');
+        const q2Select = document.getElementById('q2-select');
+        const q3Select = document.getElementById('q3-select');
+
+        const matchBtn = document.getElementById('match-btn');
+        const matchError = document.getElementById('match-error');
+
+        const resultModal = document.getElementById('result-modal');
+        const resultCard = document.getElementById('result-card');
+        const resultProjectTitle = document.getElementById('result-project-title');
+        const resultProjectDesc = document.getElementById('result-project-desc');
+        const resultInsightsText = document.getElementById('result-insights-text');
+        const resultCtaText = document.getElementById('result-cta-text');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const resultActionBtn = document.getElementById('result-action-btn');
+
+        function checkFormCompletion() {
+          const val1 = q1Select ? q1Select.value : '';
+          const val2 = q2Select ? q2Select.value : '';
+          const val3 = q3Select ? q3Select.value : '';
+
+          quizState.q1 = val1 || null;
+          quizState.q2 = val2 || null;
+          quizState.q3 = val3 || null;
+
+          if (val1 && val2 && val3) {
+            if (matchBtn) {
+              matchBtn.disabled = false;
+              matchBtn.className = "w-full py-4 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold transition-all duration-300 shadow-glow-emerald flex items-center justify-center gap-2 group active:scale-[0.98]";
+            }
+            if (matchError) {
+              matchError.textContent = "Click above to see matching results!";
+              matchError.className = "text-xs mt-2.5 text-center text-emerald-400 font-medium";
+            }
+          } else {
+            if (matchBtn) {
+              matchBtn.disabled = true;
+              matchBtn.className = "w-full py-4 px-6 rounded-xl bg-slate-800/40 border border-slate-700/60 text-slate-500 font-bold transition-all duration-300 cursor-not-allowed flex items-center justify-center gap-2 group active:scale-[0.98]";
+            }
+            if (matchError) {
+              matchError.textContent = "* Please answer all 3 questions to unlock the matching tool.";
+              matchError.className = "text-xs text-slate-500 mt-2.5 text-center";
+            }
+          }
+        }
+
+        if (q1Select) q1Select.addEventListener('change', checkFormCompletion);
+        if (q2Select) q2Select.addEventListener('change', checkFormCompletion);
+        if (q3Select) q3Select.addEventListener('change', checkFormCompletion);
+
+        let typewriterTimeout = null;
+        function runTypewriter(element, text, speed = 25) {
+          element.innerHTML = "";
+          let i = 0;
+          if (typewriterTimeout) clearTimeout(typewriterTimeout);
+
+          function type() {
+            if (i < text.length) {
+              if (text.charAt(i) === '\n') {
+                element.innerHTML += '<br>';
+              } else {
+                element.innerHTML += text.charAt(i);
+              }
+              i++;
+              typewriterTimeout = setTimeout(type, speed);
+            }
+          }
+          type();
+        }
+
+        if (matchBtn) {
+          matchBtn.addEventListener('click', () => {
+            if (!quizState.q1 || !quizState.q2 || !quizState.q3) return;
+
+            let projectTitle = "";
+            let projectDesc = "";
+            let ctaText = "";
+            let strategicAdvice = "";
+
+            if (quizState.q1 === 'A' || quizState.q2 === 'A') {
+              projectTitle = "Project 1: FJCU Smart IoT Drainage & Flood Mitigation Network";
+              projectDesc = "An advanced campus infrastructure project leveraging IoT water-level sensors and smart gates to eliminate flooding hot-spots around FJCU during typhoons.";
+            } else if (quizState.q1 === 'B' || quizState.q2 === 'B') {
+              projectTitle = "Project 2: AI-Powered Smart Building Energy Management System";
+              projectDesc = "A data-driven project aimed at installing smart meters and automated HVAC systems across FJCU colleges to cut electricity waste by 20%.";
+            } else {
+              projectTitle = "Project 3: FJCU Urban Biodiversity & Green Roof Initiative";
+              projectDesc = "Transforming concrete campus rooftops into ecological gardens, creating a resilient green corridor that lowers building temperatures and fosters local biodiversity.";
+            }
+
+            if (quizState.q3 === 'A') {
+              ctaText = "Join the student task force next semester!";
+              strategicAdvice = "【專屬學生行動方案】\n身為校園變革的推動者，建議您可以從日常減碳行為做起，並透過社群影響力發起跨系所的綠色倡議。本中心將提供相關支援，助您將創意轉化為具體的校園提案！";
+            } else {
+              ctaText = "Apply for the institutional research grant today!";
+              strategicAdvice = "【專屬教研人員指引】\n作為學術研究與政策制定的引路人，建議您可以將此專案納入跨學門研究計畫（如教育部教學實踐研究或國科會計畫），結合本中心的 ESG 數據分析，開創具社會影響力的產學合作契機。";
+            }
+
+            if (resultProjectTitle) resultProjectTitle.textContent = projectTitle;
+            if (resultProjectDesc) resultProjectDesc.textContent = projectDesc;
+            if (resultCtaText) resultCtaText.textContent = ctaText;
+
+            const insightsContent = `${strategicAdvice}\n\n目標指標建議：我們預期本專案能有效降低相關排碳量。點擊下方「Take Action」以取得進一步的研究/參與指南！`;
+
+            if (resultModal) {
+              resultModal.classList.remove('opacity-0', 'pointer-events-none');
+              setTimeout(() => {
+                if (resultCard) {
+                  resultCard.classList.remove('scale-95', 'opacity-0');
+                  resultCard.classList.add('scale-100', 'opacity-100');
+                }
+                if (resultInsightsText) runTypewriter(resultInsightsText, insightsContent, 20);
+              }, 50);
+            }
+          });
+        }
+
+        function closeModal() {
+          if (typewriterTimeout) clearTimeout(typewriterTimeout);
+          if (resultCard) {
+            resultCard.classList.remove('scale-100', 'opacity-100');
+            resultCard.classList.add('scale-95', 'opacity-0');
+          }
+          setTimeout(() => {
+            if (resultModal) resultModal.classList.add('opacity-0', 'pointer-events-none');
+          }, 300);
+        }
+
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+        
+        if (resultActionBtn) {
+          resultActionBtn.addEventListener('click', () => {
+            alert(`Success! You have initiated next steps for: "${resultProjectTitle.textContent}"`);
+            closeModal();
+          });
+        }
+        
+        if (resultModal) {
+          resultModal.addEventListener('click', (e) => {
+            if (e.target === resultModal) closeModal();
+          });
+        }
+      } catch (err) {
+        console.error("Quiz Matcher Component Error:", err);
+      }
+
+      // 4. FLOATING AI CHATBOT WIDGET
+      try {
+        const toggleChatBtn = document.getElementById('toggle-chat-btn');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChatBtn = document.getElementById('close-chat-btn');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatBody = document.getElementById('chat-body');
+
+        const chatSettingsBtn = document.getElementById('chat-settings-btn');
+        const chatSettingsPanel = document.getElementById('chat-settings-panel');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        const geminiKeyInput = document.getElementById('gemini-key-input');
+        const saveKeyBtn = document.getElementById('save-key-btn');
+
+        const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6JdjjMz0AzMgmoPLm8HcCZUhw2yXRrNfXpWb2-A87_56g";
+        let activeApiKey = DEFAULT_GEMINI_KEY;
+        try {
+          activeApiKey = localStorage.getItem('fju_gemini_api_key') || DEFAULT_GEMINI_KEY;
+        } catch (err) {
+          console.warn("Storage read failed, using default key.", err);
+        }
+        if (geminiKeyInput) geminiKeyInput.value = activeApiKey;
+
+        if (toggleChatBtn) {
+          toggleChatBtn.addEventListener('click', () => {
+            if (!chatWindow) return;
+            const isOpen = !chatWindow.classList.contains('opacity-0');
+            if (isOpen) {
+              chatWindow.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+            } else {
+              chatWindow.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+              if (chatInput) chatInput.focus();
+            }
+          });
+        }
+
+        if (closeChatBtn) {
+          closeChatBtn.addEventListener('click', () => {
+            if (chatWindow) chatWindow.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+          });
+        }
+
+        if (chatSettingsBtn) {
+          chatSettingsBtn.addEventListener('click', () => {
+            if (chatSettingsPanel) chatSettingsPanel.classList.toggle('hidden');
+          });
+        }
+        if (closeSettingsBtn) {
+          closeSettingsBtn.addEventListener('click', () => {
+            if (chatSettingsPanel) chatSettingsPanel.classList.add('hidden');
+          });
+        }
+
+        if (saveKeyBtn) {
+          saveKeyBtn.addEventListener('click', () => {
+            const val = geminiKeyInput.value.trim();
+            if (val) {
+              activeApiKey = val;
+              try {
+                localStorage.setItem('fju_gemini_api_key', val);
+              } catch (err) {
+                console.warn("Storage write failed.", err);
+              }
+              if (chatSettingsPanel) chatSettingsPanel.classList.add('hidden');
+              appendBotMessage("API Key saved successfully!");
+            }
+          });
+        }
+
+        function appendUserMessage(text) {
+          if (!chatBody) return;
+          const msg = document.createElement('div');
+          msg.className = "flex items-start gap-2 max-w-[85%] self-end flex-row-reverse ml-auto";
+          msg.innerHTML = `
+            <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">U</div>
+            <div class="bg-blue-600/20 border border-blue-500/20 rounded-2xl rounded-tr-none p-3 text-slate-200 leading-relaxed font-sans">${escapeHtml(text)}</div>
+          `;
+          chatBody.appendChild(msg);
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function appendBotMessage(text) {
+          if (!chatBody) return;
+          const msg = document.createElement('div');
+          msg.className = "flex items-start gap-2 max-w-[85%]";
+          msg.innerHTML = `
+            <div class="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[10px] border border-emerald-500/20">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl rounded-tl-none p-3 text-slate-300 leading-relaxed font-sans">${text}</div>
+          `;
+          chatBody.appendChild(msg);
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+          if (!chatBody) return;
+          const indicator = document.createElement('div');
+          indicator.id = "typing-indicator";
+          indicator.className = "flex items-start gap-2 max-w-[85%]";
+          indicator.innerHTML = `
+            <div class="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[10px] border border-emerald-500/20">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl rounded-tl-none p-3 text-slate-400 flex items-center gap-1.5 font-light">
+              <span>Analyzing</span>
+              <div class="flex gap-1">
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full typing-dot"></span>
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full typing-dot"></span>
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full typing-dot"></span>
+              </div>
+            </div>
+          `;
+          chatBody.appendChild(indicator);
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+          const indicator = document.getElementById('typing-indicator');
+          if (indicator) indicator.remove();
+        }
+
+        async function queryGemini(promptText) {
+          if (!activeApiKey) {
+            return "Error: Gemini API Key is missing. Please click the key icon in the settings to configure it.";
+          }
+          const systemContext = "You are a specialized virtual advisor representing the College of Management (管理學院) at Fu Jen Catholic University (FJCU). Your goal is to answer questions related to campus sustainability, the Smart Drainage network, carbon footprint standards, or UN SDGs. Provide friendly, helpful, and concise answers in Traditional Chinese (zh-TW).";
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ role: "user", parts: [{ text: `${systemContext}\n\nUser Question: ${promptText}` }] }]
+              })
+            });
+
+            if (!response.ok) {
+              if (response.status === 401 || response.status === 400) {
+                return `Authentication Error: The Gemini API key seems to be invalid or unauthorized. Please verify your API Key in the settings (click the key icon in the chat header).`;
+              }
+              const errData = await response.json().catch(() => ({}));
+              return `API Request Failed: ${errData.error?.message || `HTTP ${response.status}`}`;
+            }
+
+            const data = await response.json();
+            const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            return replyText ? escapeHtml(replyText).replace(/\n/g, "<br>") : "Empty response received.";
+          } catch (error) {
+            return `Network Error: Unable to connect to the Gemini API service. Please verify your internet connection.`;
+          }
+        }
+
+        if (chatForm) {
+          chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            appendUserMessage(text);
+            chatInput.value = "";
+            showTypingIndicator();
+            const answer = await queryGemini(text);
+            removeTypingIndicator();
+            appendBotMessage(answer);
+          });
+        }
+      } catch (err) {
+        console.error("Chatbot Component Error:", err);
+      }
+    })();
+  </script>
+</body>
+</html>
