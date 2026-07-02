@@ -25,7 +25,7 @@ function runThreatScan() {
 
   // Also check some mock checks in variables to demonstrate safety
   const mockKeysToCheck = [
-    "AQ.Ab8RN6JdjjMz0AzMgmoPLm8HcCZUhw2yXRrNfXpWb2-A87_56g" // Check if someone forgot this
+    "AQ.Ab8_MOCK_TEST_KEY_PLACEHOLDER_JUST_FOR_DEMO_PURPOSES"
   ];
   
   for (const key of mockKeysToCheck) {
