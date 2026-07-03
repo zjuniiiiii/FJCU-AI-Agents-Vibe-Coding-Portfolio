@@ -25,7 +25,7 @@ This project proudly demonstrates **four core concepts** introduced throughout t
 
 ### 4. Human-in-the-Loop (HITL) & Proactive Threat Scan (Day 4 & 5)
 * **Implementation**: Engineered an asynchronous Node.js backend pipeline (`expense_agent_hitl.js`) to simulate zero-trust governance.
-* **Triage Switch**: Implemented a threshold barrier where budgets $\le \$5,000$ NTD are automatically processed by the agent, while requests $>\$5,000$ NTD trigger an immediate hard stop, routing control to an authorized human administrator (`[👤 HUMAN INTERVENTION REQUIRED]`).
+* **Triage Switch**: Implemented a threshold barrier where budgets less than or equal to 5,000 NTD are automatically processed by the agent, while requests greater than 5,000 NTD trigger an immediate hard stop, routing control to an authorized human administrator (`[👤 HUMAN INTERVENTION REQUIRED]`).
 * **Spec-Driven Quality (SDD)**: Governed by standard Gherkin behavior files (`SPECIFICATION.md`) to treat code as disposable and business specifications as the absolute source of truth.
 
 ---
